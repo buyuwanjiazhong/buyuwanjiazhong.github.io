@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>关于PHP 7你应该知道的9件事 | Hexo</title>
+  <title>关于PHP 7你应该知道的9件事(自译) | Hexo</title>
 
   
   <meta name="author" content="John Doe">
@@ -23,7 +23,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-  <meta property="og:title" content="关于PHP 7你应该知道的9件事"/>
+  <meta property="og:title" content="关于PHP 7你应该知道的9件事(自译)"/>
 
   <meta property="og:site_name" content="Hexo"/>
 
@@ -64,7 +64,7 @@
 
   
     
-    <h3 class="article-title"><span>关于PHP 7你应该知道的9件事</span></h3>
+    <h3 class="article-title"><span>关于PHP 7你应该知道的9件事(自译)</span></h3>
     
   
 
@@ -89,16 +89,16 @@
 <p>当PHP 7刚一发布时，众多开发者和编程人员就下载了测试版使用，但是却发现了许多bug。他们提交了这些错误报告，于是PHP 7又回到了幕后继续研发，直到它变得坚不可摧。</p>
 <p>作为一个平台，PHP 7能够传送那些强有力的app,其范围包括从云端到企业应用，从手机端到web应用。几乎所有事物都能得到PHP 7的保护。这一版本最大的效用是在极大地提高性能同时减少了内存消耗。</p>
 <p>我们看一看PHP 7带来了什么：</p>
-<h3 id="1-别因为6还是7感到困惑"><a href="#1-别因为6还是7感到困惑" class="headerlink" title="1.别因为6还是7感到困惑"></a>1.别因为6还是7感到困惑</h3><p>PHP 5.6版本更名为PHP 7，虽然PHP 6已经存在，开发者也试图用它来做一些实验项目，但这一版本却从未达到生产阶段。经过一番争论，PHP官方开发组有了结论，他们决定给这一新的版本命名为PHP 7，同时完全放弃使用PHP 6这个名字。</p>
+<h3 id="1-别因6还是7感到困惑"><a href="#1-别因6还是7感到困惑" class="headerlink" title="1.别因6还是7感到困惑"></a>1.别因6还是7感到困惑</h3><p>PHP 5.6版本更名为PHP 7，虽然PHP 6已经存在，开发者也试图用它来做一些实验项目，但这一版本却从未达到生产阶段。经过一番争论，PHP官方开发组有了结论，他们决定给这一新的版本命名为PHP 7，同时完全放弃使用PHP 6这个名字。</p>
 <p>这一决定使用户避免了将最新的开发版本与之前的实验版本相混淆。</p>
 <h3 id="2-PHPNG，新的内核"><a href="#2-PHPNG，新的内核" class="headerlink" title="2.PHPNG，新的内核"></a>2.PHPNG，新的内核</h3><p>在1999年发布PHP 4之后至今，该平台一直由Zend引擎驱动。Zend,the Zend Framework,是一款C语言编写的开源执行引擎，支持PHP 7。其用于编译PHP语言。PHP 5.X 版本使用Zend Engine II，这一引擎可提高之前引擎的功能性。然而PHP 7却使用了名为PHPNG（Next Generation）的Zend Engine。</p>
 <h3 id="3-速度加倍"><a href="#3-速度加倍" class="headerlink" title="3.速度加倍"></a>3.速度加倍</h3><p>使用新的PHPNG引擎后，我们看到了很多改进，但最重要的特性是性能的提升。PHPNG是Zend引擎的最新结构，因此我们能看到最佳化的内存使用。</p>
-<p>通过使用PHP 7,用较之更少的服务器就能服务相同数量的用户，并能提高代码的执行速度。以下是Zend性能小组提供的性能基准图表：</p>
+<p>通过使用PHP 7,用较之更少的服务器就能服务相同数量的用户，并能提高代码的执行速度。下面是一张由Zend性能小组提供的性能基准图表：</p>
 <p><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image05-768x485.png" alt=""></p>
 <pre><code>Image source: leanpub.com
-</code></pre><h3 id="4-错误处理能力"><a href="#4-错误处理能力" class="headerlink" title="4.错误处理能力"></a>4.错误处理能力</h3><p>处理可捕获的fatal级错误，对PHP编程人员而言，不是也永远不会是一项简单的任务。唯一解决这些fatal级错误的方法使用异常类。新引擎为PHP开发者提供了轻松处理错误的功能（facility），不会出现运行时系统崩溃这一不专业的状况。</p>
-<p>新引擎提供的新引擎异常对象（new EngineException objects）并未继承之前版本的异常基类。可以看到这一对象虽然使用了早期版本的额接口和数据，但却生产出了不同类型异常的错误处理方式。通过引入名为BaseException的新父类，PHP 7使PHP编程人员能捕获到这两种类型的异常。</p>
-<p>之前版本的fatal级错误显现出的代码和结果如下图：</p>
+</code></pre><h3 id="4-错误处理能力"><a href="#4-错误处理能力" class="headerlink" title="4.错误处理能力"></a>4.错误处理能力</h3><p>处理可捕获的fatal级错误，对PHP编程人员而言，不是也永远不会是一项简单的任务。唯一解决这些fatal级错误的方法是使用异常类。新引擎为PHP开发者提供了轻松处理错误的功能（facility），不会出现运行时系统崩溃这一不专业的状况。</p>
+<p>新引擎提供的新引擎异常对象（new EngineException objects）并未继承之前版本的异常基类。可以看到这一对象虽然使用了早期版本的接口和数据，但却生产出了不同类型异常的错误处理方式。通过引入名为BaseException的新父类，PHP 7使PHP编程人员能捕获到这两种类型的异常。</p>
+<p>之前版本的fatal级错误的代码和显现的结果如下图：</p>
 <p><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image08.png" alt=""></p>
 <pre><code>Image source: wiki.PHP.net
 </code></pre><p><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image04-768x52.png" alt=""></p>
@@ -106,7 +106,30 @@
 </code></pre><p>新的变化是:</p>
 <p><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image09.png" alt=""></p>
 <pre><code>Image source: wiki.PHP.net
-</code></pre>
+</code></pre><h3 id="5-支持64为Windows系统"><a href="#5-支持64为Windows系统" class="headerlink" title="5.支持64为Windows系统"></a>5.支持64为Windows系统</h3><p>作为LAMP中重要的一员，PHP的原生环境自然是Linux。但在Windows系统中运行PHP也绝非不可能。Windows具有 X86 和 X64 两种类型的系统。PHP 5.X 不为 X64 版本的Windows系统提供支持。所以PHP 7 为 X64 引入支持。</p>
+<p>PHP 7现已能在64位Windows系统上运行，其支持64位整数与大型文件。</p>
+<h3 id="6-新的太空船运算符（-lt-gt-）和-空接合运算符（？？）"><a href="#6-新的太空船运算符（-lt-gt-）和-空接合运算符（？？）" class="headerlink" title="6.新的太空船运算符（&lt;=&gt;）和 空接合运算符（？？）"></a>6.新的太空船运算符（&lt;=&gt;）和 空接合运算符（？？）</h3><p>太空船运算符（Spaceship &lt;=&gt; ）的官方命名是组合比较符（Combined Comparison Operator）。这一运算符的记法是它像一艘简化过的飞船 &lt;=&gt; 。</p>
+<p>如果运算符左右两侧的操作数相等，它就返回结果0，如果左侧操作数大于右边则返回1，反之为-1。这是一个三向比较运算符（three-way comparison operator），不止PHP，像 Perl 和 Ruby等其他语言中也存在这一运算符。</p>
+<p><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image02-768x245.png" alt=""><br>      Image source: wiki.PHP.net</p>
+<p>空接合运算符 - 记作（？？），用于检查值是否存在，如果值不存在则返回一个默认值，或值存在时返回左侧操作数，右侧操作数则在值不存在或出现其它情况时返回（不是很理解这段话，贴出原文）。</p>
+<p>The Null Coalescing – denoted as (??), used to check if the value exists or not, if the value does not exist then it returns a default value and if the value does exist it will return the left operand, and right operand returned if the value doesn’t exist or may be any other case.</p>
+<p>以下代码段展示出这一新运算符如何减少基本项声明的时间：</p>
+<p><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image06-768x175.png" alt=""></p>
+<p>Image source: wiki.PHP.net</p>
+<h3 id="7-可进行精确类型声明"><a href="#7-可进行精确类型声明" class="headerlink" title="7.可进行精确类型声明"></a>7.可进行精确类型声明</h3><p>通过使用正确的返回类型声明防止意外的值被返回，新的PHP 7使开发者和编程人员的代码变得强健。<br><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image10.png" alt=""><br>Image source: wiki.PHP.net</p>
+<p>图片显示了一个简单的foo()函数使用的例子。其特点在于返回一个数组。关于展示返回类型声明的复杂案例还有很多。</p>
+<p>PHP 7为标量值引入了4种新的声明类型，旨在更大程度上增强其特性。这些类型是 - 整数(int)，浮点数（float），字符串（string）和布尔值（bool）。这些新的标量类型使PHP开发者在获取返回值时可对整数、浮点数、字符串和布尔值做标记。</p>
+<h3 id="8-增加匿名类"><a href="#8-增加匿名类" class="headerlink" title="8.增加匿名类"></a>8.增加匿名类</h3><p>PHP 7让开发者能够用面向对象思想编程并使用匿名类。这一思想早已存在且已用于众多面向对象语言，像C# 和 Java。匿名类–恰如其名–就是没有名字的类。但其实例化的对象也如同命名类的对象一样具有同样的功能性。如果与我们正在使用的传统PHP类一致的语法作一番讨论，唯一的区别就是类名，被舍去了。使用匿名类的好处在于可以提高代码和执行时间的速度，但却仅当这些类能以绝佳的方式使用时才行。另外也要在这个类不需要记录在文档中的情况下使用。（作者似乎在调侃，可参阅原文）</p>
+<p><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image01.png" alt=""></p>
+<p>Image source: wiki.PHP.net</p>
+<p>从相同命名空间引入<br>团体使用声明（The Group Use Declarations）– 对于需要从同一个命名空间引入多个类的开发者来说是一个福音。这一新语法帮助开发者去掉冗余的代码，使代码整洁干净并节省打字时间。</p>
+<p>团体使用声明使你能简单清晰地阅读代码和调试bug，比如帮助开发者识别出某一模块下的相同命名空间中的内容的引入。</p>
+<p><img src="http://www.arpatech.com/blog/wp-content/uploads/2017/01/image00.png" alt=""><br>Image source: wiki.PHP.net</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>PHP 7的一个目标是通过改善从而释放出一部分空间。其关键在于取消众多弃用的功能，清除老旧且不再提供支持的服务器接口和扩展，以提升速度和释放空间。通过移除PHP 5中早已弃用的和那些许久不用的条目，这次清理提供更多的安全性。如果你的app还在使用PHP的老版本，使用PHP 7会中断运行。</p>
+<p>本文旨在帮助你了解PHP 7的优势所在。并且在下一版本中，你将看到更多的提高和新的改善，这些对喜欢PHP的开发者和编程人员而言是令人兴奋的。你可能会遇到一些bug，不过等一下！那正是系统测试的方式，也是让你日益走向PHP大神之路的方向。</p>
+<p>点赞！分享！订阅！并在下方评论区写出你有关PHP 7你所喜爱的任何牛X特性。</p>
+<p>原文作者：Wajid Hussain，原文地址（<a href="http://www.arpatech.com/blog/9-best-things-you-should-know-about-php7/）" target="_blank" rel="external">http://www.arpatech.com/blog/9-best-things-you-should-know-about-php7/）</a></p>
+
       
     </div>
 
