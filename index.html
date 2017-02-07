@@ -45,9 +45,9 @@
   <nav class="site-navigation">
     <ul>
       
-        <li><a href="/">主页</a></li>
+        <li><a href="/">Home</a></li>
       
-        <li><a href="/archives">归档</a></li>
+        <li><a href="/archives">Archives</a></li>
       
     </ul>
   </nav>
@@ -59,7 +59,7 @@
 
   
     
-    <h3 class="article-title"><a href="/2017/02/06/Streamed File Zipping and Downloading in PHP/"><span>PHP流文件的压缩与下载</span></a></h3>
+    <h3 class="article-title"><a href="/2017/02/06/Streamed File Zipping and Downloading in PHP/"><span>PHP流文件的压缩与下载(译)</span></a></h3>
     
   
 
@@ -79,8 +79,7 @@
   <div class="article-content">
     <div class="entry">
       
-        <p>原文出自<a href="http://engineering.weebly.com/" target="_blank" rel="external">http://engineering.weebly.com/</a></p>
-<p>你是否注意到在Dropbox.com上，你可以边压缩边下载你所选择的文件夹？这一空中压缩功能（on-the-fly zipping）在用户端和服务器端都是很有用的–作为用户你无需等到文件在后台压缩完毕后再开始下载，也省去了服务器端创建、删除临时文件这一过程。</p>
+        <p>你是否注意到在Dropbox.com上，你可以边压缩边下载你所选择的文件夹？这一空中压缩功能（on-the-fly zipping）在用户端和服务器端都是很有用的–作为用户你无需等到文件在后台压缩完毕后再开始下载，也省去了服务器端创建、删除临时文件这一过程。</p>
 <p>这当中浏览器无从知晓压缩文件流何时结束，也不知压缩文件的大小，用户看到的只是这样：</p>
 <p><img src="https://cdn-images-1.medium.com/max/800/0*-bwQKSgn4Tt9gNkd." alt=""></p>
 <p>在网络检查选项中，我们能看到请求如下：</p>
@@ -128,7 +127,7 @@ $form.submit();
 <p>Resource interpreted as Document but transferred with MIME type application/zip: “<a href="http://yoursite.com/batch-download" target="_blank" rel="external">http://yoursite.com/batch-download</a>“.<br>（资源被解释为文档但以MIME类型 application/zip传输）。</p>
 <p>这一错误解析看起来相当合理，但却不能当做应对此事的工作方案。 &lt;form&gt;标签本是用于提交表单并刷新页面，并以文档形式显示服务器response。</p>
 <p>2.你可能有兴趣去监听表单提交的全部事件，这样你就可以，比如说，重用你的下载按钮。然而，这是不可能的。在此，对于该问题的讨论总结是，当你post一个表单，这个表单内的所有input都被发往服务器，并且你的页面会被刷新。</p>
-<p>原文作者：Ye Tian<br>原文地址：<a href="https://medium.com/weebly-engineering/streamed-file-zipping-and-downloading-in-php-1fb59b0a5b79#.a5f12but0" target="_blank" rel="external">https://medium.com/weebly-engineering/streamed-file-zipping-and-downloading-in-php-1fb59b0a5b79#.a5f12but0</a></p>
+<p>原文作者：Ye Tian<br>原文地址：<a href="https://engineering.weebly.com/blog/streamed-file-zipping-and-downloading-in-php" target="_blank" rel="external">https://engineering.weebly.com/blog/streamed-file-zipping-and-downloading-in-php</a></p>
 
       
     </div>
