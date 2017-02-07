@@ -88,8 +88,32 @@
 <p>这当中浏览器无从知晓压缩文件流何时结束，也不知压缩文件的大小，用户看到的只是这样：</p>
 <p><img src="https://cdn-images-1.medium.com/max/800/0*-bwQKSgn4Tt9gNkd." alt=""></p>
 <p>在网络检查选项中，我们能看到请求如下：</p>
-<figure class="highlight plain"><figcaption><span>Headers (excerpt):</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">accept:text/plain, */*; q=0.01</div><div class="line"></div><div class="line">accept-encoding:gzip, deflate</div><div class="line"></div><div class="line">content-length:205</div><div class="line"></div><div class="line">content-type:application/x-www-form-urlencoded; charset=UTF-8</div><div class="line"></div><div class="line">Response Headers (excerpt):</div><div class="line"></div><div class="line">content-disposition:attachment;</div><div class="line"></div><div class="line">filename=”batch_download.zip”</div><div class="line"></div><div class="line">content-type:application/x-zip</div><div class="line"></div><div class="line">content-transfer-encoding:binary</div><div class="line"></div><div class="line">date:Fri, 16 Dec 2016 20:01:47 GMT</div><div class="line"></div><div class="line">server:nginx</div><div class="line"></div><div class="line">Status:200</div></pre></td></tr></table></figure>
-<p>请注意content-disposition的选项是attachment。这表明浏览器解释的response是文件下载，而不是试图将response显示成网页。关于这一选项的工作细节，请到MDN查看。</p>
+<pre><code>Request Headers (excerpt):
+
+accept:text/plain, */*; q=0.01
+
+accept-encoding:gzip, deflate
+
+content-length:205
+
+content-type:application/x-www-form-urlencoded; charset=UTF-8
+
+Response Headers (excerpt):
+
+content-disposition:attachment;
+
+filename=”batch_download.zip”
+
+content-type:application/x-zip
+
+content-transfer-encoding:binary
+
+date:Fri, 16 Dec 2016 20:01:47 GMT
+
+server:nginx
+
+Status:200
+</code></pre><p>请注意content-disposition的选项是attachment。这表明浏览器解释的response是文件下载，而不是试图将response显示成网页。关于这一选项的工作细节，请到MDN查看。</p>
 <p>至于如何使用PHP执行这一个功能，我们在后端使用ZipStream处理压缩和流化工作。假设你的文件在服务器的指定路径并能使用file_get_contents加载，在后台，当你调用$zip-&gt;finish()，ZipStream会注意到设置response headers（content-dispositon，content-type，及其他）并确保浏览器将这个response作为文件下载来处理。最后它调用fwrite发送数据流。</p>
 <p>如果你的文件保存在诸如AWS/S3这类的云服务器上，你需要用适当的方法来加载文件内容，并调用ZipStream的底层方法$zip-&gt;addFile($file_name,$file_content)。AWS/S3见以下示例：</p>
 <pre><code>$file_name = ‘my_awesome_picture.jpg’;
