@@ -83,58 +83,16 @@
 <p>这当中浏览器无从知晓压缩文件流何时结束，也不知压缩文件的大小，用户看到的只是这样：</p>
 <p><img src="https://cdn-images-1.medium.com/max/800/0*-bwQKSgn4Tt9gNkd." alt=""></p>
 <p>在网络检查选项中，我们能看到请求如下：</p>
-<pre><code>Request Headers (excerpt):
-
-accept:text/plain, */*; q=0.01
-
-accept-encoding:gzip, deflate
-
-content-length:205
-
-content-type:application/x-www-form-urlencoded; charset=UTF-8
-
-Response Headers (excerpt):
-
-content-disposition:attachment;
-
-filename=”batch_download.zip”
-
-content-type:application/x-zip
-
-content-transfer-encoding:binary
-
-date:Fri, 16 Dec 2016 20:01:47 GMT
-
-server:nginx
-
-Status:200
-</code></pre><p>请注意content-disposition的选项是attachment。这表明浏览器解释的response是文件下载，而不是试图将response显示成网页。关于这一选项的工作细节，请到MDN查看。</p>
+<figure class="highlight plain"><figcaption><span>Headers (excerpt):</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">accept:text/plain, */*; q=0.01</div><div class="line">accept-encoding:gzip, deflate</div><div class="line">content-length:205</div><div class="line">content-type:application/x-www-form-urlencoded; charset=UTF-8</div><div class="line">Response Headers (excerpt):</div><div class="line">content-disposition:attachment;</div><div class="line">filename=”batch_download.zip”</div><div class="line">content-type:application/x-zip</div><div class="line">content-transfer-encoding:binary</div><div class="line">date:Fri, 16 Dec 2016 20:01:47 GMT</div><div class="line">server:nginx</div><div class="line">Status:200</div></pre></td></tr></table></figure>
+<p>请注意content-disposition的选项是attachment。这表明浏览器解释的response是文件下载，而不是试图将response显示成网页。关于这一选项的工作细节，请到MDN查看。</p>
 <p>至于如何使用PHP执行这一个功能，我们在后端使用ZipStream处理压缩和流化工作。假设你的文件在服务器的指定路径并能使用file_get_contents加载，在后台，当你调用$zip-&gt;finish()，ZipStream会注意到设置response headers（content-dispositon，content-type，及其他）并确保浏览器将这个response作为文件下载来处理。最后它调用fwrite发送数据流。</p>
 <p>如果你的文件保存在诸如AWS/S3这类的云服务器上，你需要用适当的方法来加载文件内容，并调用ZipStream的底层方法$zip-&gt;addFile($file_name,$file_content)。AWS/S3见以下示例：</p>
-<pre><code>$file_name = ‘my_awesome_picture.jpg’;
-$file = $client-&gt;getObject([
- ‘Bucket’: ‘my_pictures_bucket’,
- ‘Key’: $file_name
-]);
-$file_content = (string) $file[‘Body’];
-// similar to above, except the second parameter being file content
-$zip-&gt;addFile($file_name, $file_content);
-</code></pre><p>在前端，我们所需要做的就是以用户选择的文件和（或）文件夹的标识符的负载发用请求。这取决于你的app。同样值得一提的是，由于安全原因，这一请求不能通过Ajax进行–这种情况下Ajax能做的只有以二进制的形式获取压缩文件，而不能发起文件下载。我们不得不借助低级的HTML的&lt;form&gt;标签。在你DOM中的每个位置都插入跟随辅助&lt;form&gt;标签：</p>
+<figure class="highlight plain"><figcaption><span>= ‘my_awesome_picture.jpg’;</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$file = $client-&gt;getObject([</div><div class="line"> ‘Bucket’: ‘my_pictures_bucket’,</div><div class="line"> ‘Key’: $file_name</div><div class="line">]);</div><div class="line">$file_content = (string) $file[‘Body’];</div><div class="line">// similar to above, except the second parameter being file content</div><div class="line">$zip-&gt;addFile($file_name, $file_content);</div></pre></td></tr></table></figure>
+<p>在前端，我们所需要做的就是以用户选择的文件和（或）文件夹的标识符的负载发用请求。这取决于你的app。同样值得一提的是，由于安全原因，这一请求不能通过Ajax进行–这种情况下Ajax能做的只有以二进制的形式获取压缩文件，而不能发起文件下载。我们不得不借助低级的HTML的&lt;form&gt;标签。在你DOM中的每个位置都插入跟随辅助&lt;form&gt;标签：</p>
 <p>请注意，尽管这一请求涉及到从后端取出一个压缩文件，在此我们要使用POST方法，因为如果用户选择了一个文件/文件夹进行加载，那么请求负载可能会获得很长的数据。这种情况下，使用GET方法可能会出现HTTP 414 error。</p>
 <p>下一件事是向表单加载数据（通过插入&lt;input&gt;标签）并通过JavaScript提交：</p>
-<pre><code>var $form = $(‘#downloader-form’);
-// Append CSRF token for POST method
-$form.append($(‘&lt;input&gt;’).attr({
- name: ‘_token’,
- value: ‘&lt;your_CSRF_token&gt;’
-}));
-// User-selected files, assuming files are identified by UUIDs
-$form.append($(‘&lt;input&gt;’).attr({
- name: ‘file_ids’,
- value: [‘df491ae4–9d00–4674-b565-e4e5943f55b4’, …]
-}));
-$form.submit();
-</code></pre><p>以下两个问题值得注意：</p>
+<figure class="highlight plain"><figcaption><span>$form = $(‘#downloader-form’);</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">// Append CSRF token for POST method</div><div class="line">$form.append($(‘&lt;input&gt;’).attr(&#123;</div><div class="line"> name: ‘_token’,</div><div class="line"> value: ‘&lt;your_CSRF_token&gt;’</div><div class="line">&#125;));</div><div class="line">// User-selected files, assuming files are identified by UUIDs</div><div class="line">$form.append($(‘&lt;input&gt;’).attr(&#123;</div><div class="line"> name: ‘file_ids’,</div><div class="line"> value: [‘df491ae4–9d00–4674-b565-e4e5943f55b4’, …]</div><div class="line">&#125;));</div><div class="line">$form.submit();</div></pre></td></tr></table></figure>
+<p>以下两个问题值得注意：</p>
 <p>1.当表单提交完成，浏览器会把你的表单response解释为document，但是response’headers和content-type其中之一会表明MIME类型是 application/x-zip而不是一种诸如text/html的有效文档MIME<br>类型。所以你可能在console中看到这一log：</p>
 <p>Resource interpreted as Document but transferred with MIME type application/zip: “<a href="http://yoursite.com/batch-download" target="_blank" rel="external">http://yoursite.com/batch-download</a>“.<br>（资源被解释为文档但以MIME类型 application/zip传输）。</p>
 <p>这一错误解析看起来相当合理，但却不能当做应对此事的工作方案。 &lt;form&gt;标签本是用于提交表单并刷新页面，并以文档形式显示服务器response。</p>
