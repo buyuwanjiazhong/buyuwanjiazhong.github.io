@@ -45,9 +45,9 @@
   <nav class="site-navigation">
     <ul>
       
-        <li><a href="/">Home</a></li>
+        <li><a href="/">主页</a></li>
       
-        <li><a href="/archives">Archives</a></li>
+        <li><a href="/archives">归档</a></li>
       
     </ul>
   </nav>
@@ -55,6 +55,101 @@
 
     <main class="site-main posts-loop">
     
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/02/06/Streamed File Zipping and Downloading in PHP/"><span>PHP流文件的压缩与下载</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/02/06/Streamed File Zipping and Downloading in PHP/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-02-06T14:43:54.000Z">
+          2017-02-06
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>原文出自<a href="http://engineering.weebly.com/" target="_blank" rel="external">http://engineering.weebly.com/</a></p>
+<p>你是否注意到在Dropbox.com上，你可以边压缩边下载你所选择的文件夹？这一空中压缩功能（on-the-fly zipping）在用户端和服务器端都是很有用的–作为用户你无需等到文件在后台压缩完毕后再开始下载，也省去了服务器端创建、删除临时文件这一过程。</p>
+<p>这当中浏览器无从知晓压缩文件流何时结束，也不知压缩文件的大小，用户看到的只是这样：</p>
+<p><img src="https://cdn-images-1.medium.com/max/800/0*-bwQKSgn4Tt9gNkd." alt=""></p>
+<p>在网络检查选项中，我们能看到请求如下：</p>
+<pre><code>Request Headers (excerpt):
+accept:text/plain, */*; q=0.01
+accept-encoding:gzip, deflate
+content-length:205
+content-type:application/x-www-form-urlencoded; charset=UTF-8
+
+Response Headers (excerpt):
+content-disposition:attachment; filename=”batch_download.zip”
+content-type:application/x-zip
+content-transfer-encoding:binary
+date:Fri, 16 Dec 2016 20:01:47 GMT
+server:nginx
+Status:200
+</code></pre><p>请注意content-disposition的选项是attachment。这表明浏览器解释的response是文件下载，而不是试图将response显示成网页。关于这一选项的工作细节，请到MDN查看。</p>
+<p>至于如何使用PHP执行这一个功能，我们在后端使用ZipStream处理压缩和流化工作。假设你的文件在服务器的指定路径并能使用file_get_contents加载，在后台，当你调用$zip-&gt;finish()，ZipStream会注意到设置response headers（content-dispositon，content-type，及其他）并确保浏览器将这个response作为文件下载来处理。最后它调用fwrite发送数据流。</p>
+<p>如果你的文件保存在诸如AWS/S3这类的云服务器上，你需要用适当的方法来加载文件内容，并调用ZipStream的底层方法$zip-&gt;addFile($file_name,$file_content)。AWS/S3见以下示例：</p>
+<pre><code>$file_name = ‘my_awesome_picture.jpg’;
+$file = $client-&gt;getObject([
+ ‘Bucket’: ‘my_pictures_bucket’,
+ ‘Key’: $file_name
+]);
+$file_content = (string) $file[‘Body’];
+// similar to above, except the second parameter being file content
+$zip-&gt;addFile($file_name, $file_content);
+</code></pre><p>在前端，我们所需要做的就是以用户选择的文件和（或）文件夹的标识符的负载发用请求。这取决于你的app。同样值得一提的是，由于安全原因，这一请求不能通过Ajax进行–这种情况下Ajax能做的只有以二进制的形式获取压缩文件，而不能发起文件下载。我们不得不借助低级的HTML的&lt;form&gt;标签。在你DOM中的每个位置都插入跟随辅助&lt;form&gt;标签：</p>
+<p>请注意，尽管这一请求涉及到从后端取出一个压缩文件，在此我们要使用POST方法，因为如果用户选择了一个文件/文件夹进行加载，那么请求负载可能会获得很长的数据。这种情况下，使用GET方法可能会出现HTTP 414 error。</p>
+<p>下一件事是向表单加载数据（通过插入&lt;input&gt;标签）并通过JavaScript提交：</p>
+<pre><code>var $form = $(‘#downloader-form’);
+// Append CSRF token for POST method
+$form.append($(‘&lt;input&gt;’).attr({
+ name: ‘_token’,
+ value: ‘&lt;your_CSRF_token&gt;’
+}));
+// User-selected files, assuming files are identified by UUIDs
+$form.append($(‘&lt;input&gt;’).attr({
+ name: ‘file_ids’,
+ value: [‘df491ae4–9d00–4674-b565-e4e5943f55b4’, …]
+}));
+$form.submit();
+</code></pre><p>以下两个问题值得注意：</p>
+<p>1.当表单提交完成，浏览器会把你的表单response解释为document，但是response’headers和content-type其中之一会表明MIME类型是 application/x-zip而不是一种诸如text/html的有效文档MIME<br>类型。所以你可能在console中看到这一log：</p>
+<p>Resource interpreted as Document but transferred with MIME type application/zip: “<a href="http://yoursite.com/batch-download" target="_blank" rel="external">http://yoursite.com/batch-download</a>“.<br>（资源被解释为文档但以MIME类型 application/zip传输）。</p>
+<p>这一错误解析看起来相当合理，但却不能当做应对此事的工作方案。 &lt;form&gt;标签本是用于提交表单并刷新页面，并以文档形式显示服务器response。</p>
+<p>2.你可能有兴趣去监听表单提交的全部事件，这样你就可以，比如说，重用你的下载按钮。然而，这是不可能的。在此，对于该问题的讨论总结是，当你post一个表单，这个表单内的所有input都被发往服务器，并且你的页面会被刷新。</p>
+<p>原文作者：Ye Tian<br>原文地址：<a href="https://medium.com/weebly-engineering/streamed-file-zipping-and-downloading-in-php-1fb59b0a5b79#.a5f12but0" target="_blank" rel="external">https://medium.com/weebly-engineering/streamed-file-zipping-and-downloading-in-php-1fb59b0a5b79#.a5f12but0</a></p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
   <article>
 
   
@@ -252,26 +347,32 @@
 <p>籍贯：内蒙古自治区锡林郭勒盟锡林浩特市</p>
 <p>GitHub：<a href="https://github.com/buyuwanjiazhong" target="_blank" rel="external">https://github.com/buyuwanjiazhong</a></p>
 <p>个人博客：<a href="https://buyuwanjiazhong.github.io/archives/" target="_blank" rel="external">https://buyuwanjiazhong.github.io/archives/</a></p>
-<p>出生年月：1989/10/9</p>
+<p>出生年月：1989.10</p>
 <p>现居住地：北京</p>
 <p>期望城市：北京</p>
 <p>期望职位：PHP开发</p>
 <h3 id="教育背景"><a href="#教育背景" class="headerlink" title="教育背景"></a>教育背景</h3><p>毕业院校：内蒙古师范大学鸿德学院</p>
 <p>学历：本科</p>
-<p>专业：新闻</p>
+<p>专业：新闻学</p>
 <p>时间：2008.8 - 2012.7</p>
 <h3 id="工作经历"><a href="#工作经历" class="headerlink" title="工作经历"></a>工作经历</h3><p>2012.9 - 2016.8 内蒙古锡盟锡市宝力根苏木额尔敦塔拉嘎查村  大学生村官</p>
 <p>负责：文书写作、家庭人口信息统计与管理、人口社保管理、日常行政等工作。</p>
+<h3 id="自学经历"><a href="#自学经历" class="headerlink" title="自学经历"></a>自学经历</h3><ul>
+<li><p>2015.7-2016.4 初次接触编程，学习C语言与C++，教材：《C Primer Plus(中文版)(第5版)》、《C++ Primer Plus中文版(第6版)》</p>
+</li>
+<li><p>2016.4-至今 学习PHP，教材：《跟兄弟连学PHP》书籍及配套视频、imooc网站PHP相关课程，并学习了与PHP开发相关的html、JavaScript、MySQL、Linux的部分内容</p>
+</li>
+</ul>
 <h3 id="过去作品"><a href="#过去作品" class="headerlink" title="过去作品"></a>过去作品</h3><p>自学作品：</p>
 <p><a href="http://www.xuexiphp.top/thinkphp" target="_blank" rel="external">博客型新闻网站</a></p>
 <ul>
-<li><p>开发周期 ：10天</p>
+<li><p>开发周期：10天</p>
 </li>
-<li><p>开发模式 ：个人</p>
+<li><p>开发模式：个人</p>
 </li>
-<li><p>开发环境 ：LNMP</p>
+<li><p>开发环境：LNMP</p>
 </li>
-<li><p>项目简介 ：使用ThinkPHP框架开发的博客型新闻网站，分前后台两部分。前台首页由编辑推荐区、最多阅读量区和最新文章区等部分构成，点击文章进行阅读评论；后台进行网站新闻的编辑、推送。</p>
+<li><p>项目简介：使用ThinkPHP框架开发的博客型新闻网站，分前后台两部分。前台首页由编辑推荐区、最多阅读量区和最新文章区等部分构成，点击文章进行阅读评论；后台进行网站新闻的编辑、推送。</p>
 </li>
 <li><p>主要功能：1、用户注册与评论；2、文章搜索；3、管理员编辑、推送文章；4、文章依点击量排序；</p>
 </li>
@@ -280,17 +381,123 @@
 </ul>
 <p><a href="http://www.xuexiphp.top/yii/web/index.php?r=dashboard/index" target="_blank" rel="external">简易订单系统</a></p>
 <ul>
-<li><p>开发周期 ：10天。</p>
+<li><p>开发周期：10天</p>
 </li>
-<li><p>开发模式 ：个人。</p>
+<li><p>开发模式：个人</p>
 </li>
-<li><p>开发环境 ：LNMP</p>
+<li><p>开发环境：LNMP</p>
 </li>
-<li><p>项目说明 ：使用Yii框架开发的简易订单系统，用于品类较少的餐饮店，生成订单，记录收支。</p>
+<li><p>项目说明：使用Yii框架开发的简易订单系统，用于品类较少的餐饮店，生成订单，记录收支。</p>
 </li>
 <li><p>主要功能 ：1、生成订单；2、查看收支明细；</p>
 </li>
 <li><p>技术要点 ：1、使用JavaScript计算金额、生成订单，使用AJAX将订单信息POST到后台存入数据库。2、通过日期和单号查询订单信息，可查看当日、当月及其他月份订单信息。</p>
+</li>
+</ul>
+<h3 id="项目技能"><a href="#项目技能" class="headerlink" title="项目技能"></a>项目技能</h3><ul>
+<li>Web开发：PHP</li>
+<li>PHP框架：ThinkPHP/Yii</li>
+<li>前端框架：Bootstrap/jquery</li>
+<li>数据库：MySQL</li>
+<li>版本管理：GitHub</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
+    <h3 class="article-title"><a href="/2017/01/25/resume的副本/"><span></span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/01/25/resume的副本/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-01-25T10:45:54.000Z">
+          2017-01-25
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h1 id="郭宇欣的简历"><a href="#郭宇欣的简历" class="headerlink" title="郭宇欣的简历"></a>郭宇欣的简历</h1><hr>
+<h3 id="个人情况"><a href="#个人情况" class="headerlink" title="个人情况"></a>个人情况</h3><p>姓名：郭宇欣</p>
+<p>电话/微信：18247965235</p>
+<p>邮箱：guoyuxin1009@gmail.com</p>
+<p>籍贯：内蒙古自治区锡林郭勒盟锡林浩特市</p>
+<p>GitHub：<a href="https://github.com/buyuwanjiazhong" target="_blank" rel="external">https://github.com/buyuwanjiazhong</a></p>
+<p>个人博客：<a href="https://buyuwanjiazhong.github.io/archives/" target="_blank" rel="external">https://buyuwanjiazhong.github.io/archives/</a></p>
+<p>出生年月：1989.10</p>
+<p>现居住地：北京</p>
+<p>期望城市：北京</p>
+<p>期望职位：PHP开发</p>
+<h3 id="教育背景"><a href="#教育背景" class="headerlink" title="教育背景"></a>教育背景</h3><p>毕业院校：内蒙古师范大学鸿德学院</p>
+<p>学历：本科</p>
+<p>专业：新闻学</p>
+<p>时间：2008.8 - 2012.7</p>
+<h3 id="工作经历"><a href="#工作经历" class="headerlink" title="工作经历"></a>工作经历</h3><p>2012.9 - 2016.8 内蒙古锡盟锡市宝力根苏木额尔敦塔拉嘎查村  大学生村官</p>
+<p>负责：文书写作、家庭人口信息统计与管理、人口社保管理、日常行政等工作。</p>
+<h3 id="自学经历"><a href="#自学经历" class="headerlink" title="自学经历"></a>自学经历</h3><ul>
+<li><p>2015.7-2016.4 学习C语言与C++，教材：《C Primer Plus(中文版)(第5版)》、《C++ Primer Plus中文版(第6版)》。</p>
+</li>
+<li><p>2016.4-至今 学习PHP，教材：《跟兄弟连学PHP》书籍及配套视频、imooc网站PHP相关课程，并学习了与PHP开发相关的html、JavaScript、MySQL、Linux的部分内容。</p>
+</li>
+</ul>
+<h3 id="过去作品"><a href="#过去作品" class="headerlink" title="过去作品"></a>过去作品</h3><p>自学作品：</p>
+<p><a href="http://www.xuexiphp.top/thinkphp" target="_blank" rel="external">博客型新闻网站</a></p>
+<ul>
+<li><p>开发周期：10天</p>
+</li>
+<li><p>开发模式：个人</p>
+</li>
+<li><p>开发环境：LNMP</p>
+</li>
+<li><p>项目简介：使用ThinkPHP框架开发的博客型新闻网站，分前后台两部分。前台首页由编辑推荐区、最多阅读量区和最新文章区等部分构成，点击文章进行阅读评论；后台进行网站新闻的编辑、推送。</p>
+</li>
+<li><p>主要功能：1、用户注册与评论；2、文章搜索；3、管理员编辑、推送文章；4、文章依点击量排序。</p>
+</li>
+<li><p>技术要点： 1、每篇文章拥有唯一ID编号，通过URL传递ID访问数据库（MySQL），进行新闻查取、修改、删除的操作。2、文章的增删改查信息通过AJAX技术POST到后台控制器处理。3、在后台，各控制器继承一个自建的公共控制器（该控制器继承ThinkPHP提供的控制器），用于判断管理员登录情况及管理权限。</p>
+</li>
+</ul>
+<p><a href="http://www.xuexiphp.top/yii/web/index.php?r=dashboard/index" target="_blank" rel="external">简易订单系统</a></p>
+<ul>
+<li><p>开发周期：10天</p>
+</li>
+<li><p>开发模式：个人</p>
+</li>
+<li><p>开发环境：LNMP</p>
+</li>
+<li><p>项目说明：使用Yii框架开发的简易订单系统，用于品类较少的餐饮店，生成订单，记录收支。</p>
+</li>
+<li><p>主要功能 ：1、生成订单；2、查看收支明细。</p>
+</li>
+<li><p>技术要点 ：1、使用JavaScript计算金额、生成订单，使用AJAX将订单信息POST到后台存入数据库；2、通过日期和单号查询订单信息，可查看当日、当月及其他月份订单信息。</p>
 </li>
 </ul>
 <h3 id="项目技能"><a href="#项目技能" class="headerlink" title="项目技能"></a>项目技能</h3><ul>
