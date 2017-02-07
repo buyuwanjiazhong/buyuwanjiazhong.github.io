@@ -89,17 +89,29 @@
 <p><img src="https://cdn-images-1.medium.com/max/800/0*-bwQKSgn4Tt9gNkd." alt=""></p>
 <p>在网络检查选项中，我们能看到请求如下：</p>
 <pre><code>Request Headers (excerpt):
+
 accept:text/plain, */*; q=0.01
+
 accept-encoding:gzip, deflate
+
 content-length:205
+
 content-type:application/x-www-form-urlencoded; charset=UTF-8
 
 Response Headers (excerpt):
-content-disposition:attachment; filename=”batch_download.zip”
+
+content-disposition:attachment;
+
+filename=”batch_download.zip”
+
 content-type:application/x-zip
+
 content-transfer-encoding:binary
+
 date:Fri, 16 Dec 2016 20:01:47 GMT
+
 server:nginx
+
 Status:200
 </code></pre><p>请注意content-disposition的选项是attachment。这表明浏览器解释的response是文件下载，而不是试图将response显示成网页。关于这一选项的工作细节，请到MDN查看。</p>
 <p>至于如何使用PHP执行这一个功能，我们在后端使用ZipStream处理压缩和流化工作。假设你的文件在服务器的指定路径并能使用file_get_contents加载，在后台，当你调用$zip-&gt;finish()，ZipStream会注意到设置response headers（content-dispositon，content-type，及其他）并确保浏览器将这个response作为文件下载来处理。最后它调用fwrite发送数据流。</p>
