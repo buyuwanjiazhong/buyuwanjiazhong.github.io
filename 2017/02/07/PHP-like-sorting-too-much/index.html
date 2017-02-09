@@ -1,0 +1,136 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>PHP非常喜欢分类（译） | Hexo</title>
+
+  
+  <meta name="author" content="John Doe">
+  
+
+  
+  <meta name="description" content="PHP喜欢做分类。当然，它有sort()，ksort()以及其他类似函数。但是，PHP实在是太能做分类了。我遇到的第一个分类问题是臭名昭著的array_unique()。现在，这正影响着glob()和scandir()。我一直在寻找其他的函数，说到这，检查一下你的代码。
+array_unique()">
+  
+
+  
+  
+  <meta name="keywords" content="">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="PHP非常喜欢分类（译）"/>
+
+  <meta property="og:site_name" content="Hexo"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+</head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">Hexo</a>
+    </h1>
+    <p class="site-description"></p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">Home</a></li>
+      
+        <li><a href="/archives">Archives</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>PHP非常喜欢分类（译）</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2017/02/07/PHP-like-sorting-too-much/" rel="bookmark">
+        <time class="entry-date published" datetime="2017-02-07T15:05:22.000Z">
+          2017-02-07
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <p>PHP喜欢做分类。当然，它有sort()，ksort()以及其他类似函数。但是，PHP实在是太能做分类了。我遇到的第一个分类问题是臭名昭著的array_unique()。现在，这正影响着glob()和scandir()。我一直在寻找其他的函数，说到这，检查一下你的代码。</p>
+<p>array_unique()同样是分类。</p>
+<p>array_unique()用于移除数组中重复的值。无论如何，其性能随着数组的增大而急速下滑。这太奇怪了：当有100个元素时，array_unique()比array_keys/array_count_values慢20倍，当有1000个元素时，它却慢了130倍。看手册时，有人意识到array_merge()做了一些分类。第二个参数实际上是一个把array_merge()变成分类选择.</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&lt;?php print_r(array_unique([<span class="number">2</span>,<span class="number">3</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]));?&gt;</div><div class="line"></div><div class="line">Array</div><div class="line">(</div><div class="line">[<span class="number">0</span>] =&gt; <span class="number">2</span></div><div class="line">[<span class="number">1</span>] =&gt; <span class="number">3</span></div><div class="line">[<span class="number">2</span>] =&gt; <span class="number">1</span></div><div class="line">)</div></pre></td></tr></table></figure>
+<p>讽刺的是得到的数组结果在任何形式上都是未被分类的。</p>
+<h3 id="Glob-和scandir-也在分类"><a href="#Glob-和scandir-也在分类" class="headerlink" title="Glob()和scandir()也在分类"></a>Glob()和scandir()也在分类</h3><p>其他特别能做分类的函数是glob()和scandir()。Glob()是一个调用glob()函数的系统(是不是有病？)。它是个很便捷的函数，允许统配文件列表。其接受GLOB_NOSORT标记来阻止分类。默认情况下，文件列表是作出排序的。就执行时间的效果上，它比array_merge()要小一些。</p>
+<p>Listing 28k files :</p>
+<p>glob() with default values : 16s</p>
+<p>glob() with NOSORT         : 12s</p>
+<p>实际上，scandir()是glob()之外的另一个选择。scandir()同样列出文件，尽管它不处理通配符。Scandir()，在另一方面，也具有一些默认分类。可它通常可使用SCANDIR_SORT_NONE，一个不分类标记。</p>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+  
+
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2017 John Doe
+    
+  </p>
+</footer>
+    
+  </div>
+</div>
+</body>
+</html>
